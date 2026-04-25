@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>FIFA WORLD CUP PILOTIS 2026</title>
+
+<style>
+
+/* ===== FUNDO COPA ===== */
+body{
+    margin:0;
+    font-family:Arial;
+    background:#8B0000;
+    color:white;
+}
+
+body::before{
+    content:"";
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:repeating-linear-gradient(
+        135deg,
+        rgba(255,255,255,0.08) 0px,
+        rgba(255,255,255,0.08) 2px,
+        transparent 2px,
+        transparent 18px
+    );
+    z-index:-1;
+}
+
+/* ===== INTRO ===== */
+#intro{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:black;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+    animation:sumir 3.5s forwards;
+}
+
+.taca{font-size:90px;animation:brilho 1s infinite alternate;}
+.bola{font-size:50px;animation:girar 1.5s linear infinite;}
+
+@keyframes girar{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes brilho{from{transform:scale(1)}to{transform:scale(1.2)}}
+@keyframes sumir{0%{opacity:1}90%{opacity:1}100%{opacity:0;visibility:hidden;}}
+
+/* ===== MENU ===== */
+.menu{
+    text-align:center;
+    margin:10px;
+}
+
+button{
+    background:#b30000;
+    color:white;
+    border:1px solid black;
+    padding:10px 15px;
+    margin:5px;
+    cursor:pointer;
+    border-radius:5px;
+}
+
+button:hover{
+    background:#ff0000;
+}
+
+/* ===== CONTEUDO ===== */
+#conteudo{
+    width:90%;
+    margin:auto;
+}
+
+/* ===== MATCH ===== */
+.match{
+    display:flex;
+    justify-content:space-between;
+    padding:10px;
+    background:#111;
+    border:1px solid black;
+    margin:5px 0;
+}
+
+/* ===== TABELA ===== */
+.group{
+    background:#111;
+    padding:10px;
+    margin:10px 0;
+    border:1px solid black;
+    border-radius:6px;
+}
+
+.line{
+    display:flex;
+    justify-content:space-between;
+    padding:5px;
+}
+
+.classified{background:#0b3d0b;}
+.eliminated{background:#3d0b0b;}
+
+/* ===== MOBILE ===== */
+@media(max-width:600px){
+    .match,.line{flex-direction:column;text-align:center;}
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- INTRO -->
+<div id="intro">
+    <div style="text-align:center;">
+        <div class="taca">🏆</div>
+        <div class="bola">⚽</div>
+        <h2>COPA PILOTIS 2026</h2>
+    </div>
+</div>
+
+<!-- MENU -->
+<div class="menu">
+    <button onclick="abrir('grupos')">⚽ Grupos</button>
+    <button onclick="abrir('tabela')">📊 Tabela</button>
+    <button onclick="abrir('mata')">🏆 Mata-mata</button>
+</div>
+
+<div id="conteudo"></div>
+
+<script>
+
+/* ===== GRUPOS ===== */
+const grupos = {
+A:["Pilotis","México","Coreia do Sul","Suíça"],
+B:["Brasil","Marrocos","Escócia","Canadá"],
+C:["Holanda","Japão","Costa do Marfim","Curaçao"],
+D:["Espanha","Alemanha","Uruguai","Austrália"],
+E:["França","Senegal","Noruega","Equador"],
+F:["Argentina","Bélgica","Argélia","Bósnia"],
+G:["Portugal","Colômbia","Egito","Uzbequistão"],
+H:["Inglaterra","Croácia","Arábia Saudita","Nova Zelândia"]
+};
+
+let jogos=[];
+
+/* ===== ABAS ===== */
+function abrir(tela){
+    if(tela==="grupos") gruposFunc();
+    if(tela==="tabela") tabelaFunc();
+    if(tela==="mata") mataFunc();
+}
+
+/* ===== GRUPOS ===== */
+function gruposFunc(){
+
+jogos=[];
+
+let html="<h2>⚽ FASE DE GRUPOS (13/06 - 28/06)</h2>";
+
+for(let g in grupos){
+
+let t=grupos[g];
+
+html+=`<div class="group"><h3>Grupo ${g}</h3>`;
+
+let ordem=[[0,1],[2,3],[0,2],[1,3],[0,3],[1,2]];
+
+ordem.forEach((p,i)=>{
+
+jogos.push({t1:t[p[0]],t2:t[p[1]]});
+
+html+=`
+<div class="match">
+${t[p[0]]} <input type="number"> x <input type="number"> ${t[p[1]]}
+</div>
+`;
+
+});
+
+html+="</div>";
+}
+
+html+=`<button onclick="calcular()">GERAR TABELA / MATA-MATA</button>`;
+
+document.getElementById("conteudo").innerHTML=html;
+}
+
+/* ===== TABELA + MATA ===== */
+function calcular(){
+
+let pts={};
+
+jogos.forEach((j,i)=>{
+
+let a=document.querySelectorAll("input")[i*2].value;
+let b=document.querySelectorAll("input")[i*2+1].value;
+
+a=+a;b=+b;
+
+if(!pts[j.t1]) pts[j.t1]=0;
+if(!pts[j.t2]) pts[j.t2]=0;
+
+if(a>b) pts[j.t1]+=3;
+else if(b>a) pts[j.t2]+=3;
+else{pts[j.t1]++;pts[j.t2]++;}
+
+});
+
+window.resultado = Object.keys(pts).sort((a,b)=>pts[b]-pts[a]);
+
+tabelaFunc();
+}
+
+/* ===== TABELA ===== */
+function tabelaFunc(){
+
+let html="<h2>📊 CLASSIFICAÇÃO ESTILO GE</h2>";
+
+if(!window.resultado){
+    html+="<p>Preencha os jogos primeiro.</p>";
+    document.getElementById("conteudo").innerHTML=html;
+    return;
+}
+
+window.resultado.forEach((t,i)=>{
+
+let cor=i<2?"classified":"eliminated";
+
+html+=`
+<div class="line ${cor}">
+<span>${i+1} ${t}</span>
+<span>${Math.floor(Math.random()*10)} pts</span>
+</div>
+`;
+
+});
+
+document.getElementById("conteudo").innerHTML=html;
+}
+
+/* ===== MATA ===== */
+function mataFunc(){
+
+let r=window.resultado || [];
+
+if(r.length<16){
+document.getElementById("conteudo").innerHTML="<p>Complete os grupos primeiro.</p>";
+return;
+}
+
+let html="<h2>🏆 MATA-MATA</h2>";
+
+for(let i=0;i<16;i+=2){
+html+=`<div class="match">${r[i]} 🆚 ${r[i+1]}</div>`;
+}
+
+document.getElementById("conteudo").innerHTML=html;
+}
+
+</script>
+
+</body>
+</html>
